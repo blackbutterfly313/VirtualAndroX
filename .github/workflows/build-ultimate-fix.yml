@@ -1,0 +1,119 @@
+name: Build VirtualAndroX - Ultimate Fix
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev wget curl
+
+      - name: Install Buildozer and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install buildozer cython==0.29.19
+
+      - name: Setup Android SDK
+        run: |
+          # Download and setup Android Command Line Tools
+          mkdir -p ~/android-sdk
+          cd ~/android-sdk
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
+          unzip -q commandlinetools-linux-8092744_latest.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/ 2>/dev/null || true
+          
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          export PATH=$PATH:~/android-sdk/cmdline-tools/latest/bin:~/android-sdk/platform-tools
+          
+          # Accept licenses
+          yes | sdkmanager --licenses
+          
+          # Install platforms and tools
+          sdkmanager "platforms;android-30" "platform-tools"
+
+      - name: Accept Android SDK Build-Tools license
+        run: |
+          mkdir -p $HOME/.android/licenses
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $HOME/.android/licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/.android/licenses/android-sdk-preview-license
+          echo "33f2902b6f732a949b2f43aef4c5f7c9c4a2f574" > $HOME/.android/licenses/android-sdk-build-tools-license
+
+      - name: Install Android Build-Tools 36.1
+        run: |
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          export PATH=$PATH:~/android-sdk/cmdline-tools/latest/bin:~/android-sdk/platform-tools
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0"
+
+      - name: Create ultimate buildozer.spec
+        run: |
+          cat > buildozer-ultimate.spec << 'SPEC'
+[app]
+title = VirtualAndroX
+package.name = virtualandrox
+package.domain = org.blackbutterfly313
+source.dir = .
+version = 1.0.0
+requirements = python3,openssl,requests,psutil,colorama
+orientation = portrait
+
+[buildozer]
+log_level = 2
+
+[android]
+api = 30
+minapi = 21
+ndk = 21.4.7075529
+sdk = 30
+p4a.branch = 2020.06.02
+android.arch = arm64-v8a
+android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCESS_NETWORK_STATE
+android.meta_data = android.app.usesCleartextTraffic=true
+android.accept_sdk_license = True
+
+# Force using our manually installed SDK
+android.sdk_path = ~/android-sdk
+
+# Pyjnius compilation fix
+android.add_src =
+android.add_resources =
+android.add_jars =
+android.add_aars =
+
+[loggers]
+root = INFO
+
+[app:source.exclude_patterns]
+.git,.github,bin,*.pyc,*.pyo,build
+SPEC
+
+      - name: Build APK with ultimate configuration
+        run: |
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          buildozer -v android debug --profile buildozer-ultimate.spec
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VirtualAndroX-Ultimate-Fix-APK
+          path: bin/*.apk
+          retention-days: 7
