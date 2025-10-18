@@ -22,21 +22,32 @@ jobs:
           sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip zlib1g-dev
           pip install buildozer cython==0.29.19
       
-      - name: Pre-accept Android SDK licenses
+      - name: Pre-accept ALL Android SDK licenses
         run: |
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           
-          # Create licenses directory and accept all licenses
+          # Create licenses directory and accept ALL licenses
           mkdir -p ~/.android/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-license
           echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.android/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> ~/.android/licenses/android-sdk-license
           echo "601085b94cd77f0b54ff86406957099ebe79c4d6" >> ~/.android/licenses/android-sdk-license
+          echo "33f2902b6f732a949b2f43aef4c5f7c9c4a2f574" >> ~/.android/licenses/android-sdk-license
           
           # Verify licenses
           cat ~/.android/licenses/*
+      
+      - name: Force install build-tools with interactive acceptance
+        run: |
+          # Set up environment for SDK manager
+          export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/tools/bin
+          
+          # Force accept licenses interactively
+          yes | sdkmanager --licenses
+          sdkmanager "build-tools;36.1.0" "platforms;android-30" "platform-tools"
       
       - name: Build APK
         run: |
