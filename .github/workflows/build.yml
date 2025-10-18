@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip zlib1g-dev
-          pip install buildozer
+          pip install buildozer cython==0.29.19
       
       - name: Pre-accept Android SDK licenses
         run: |
