@@ -1,0 +1,23 @@
+name: Build with Kivy Buildozer Action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build with Buildozer Action
+      uses: arturoguzman/buildozer-action@v1
+      with:
+        buildozer-version: stable
+        work-dir: ./
+        target: android
+        buildozer-args: -v android debug
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: VirtualAndroX-Kivy-APK
+        path: bin/*.apk
