@@ -1,0 +1,59 @@
+name: Build VirtualAndroX - Ultimate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 30
+        build-tools: 36.1.0
+        ndk: 25b
+
+    - name: Pre-accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        mkdir -p ~/.android/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.android/licenses/android-sdk-license
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> ~/.android/licenses/android-sdk-license
+
+    - name: Force accept all Android licenses
+      run: |
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-30" "build-tools;36.1.0" "platform-tools" "cmdline-tools;latest"
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    
+    - name: Install Buildozer and dependencies
+      run: |
+        pip install buildozer cython==0.29.19
+
+    - name: Configure Buildozer to use system Android SDK
+      run: |
+        echo "ANDROIDSDK = '$ANDROID_HOME'" >> buildozer.spec
+        echo "ANDROIDNDK = '$ANDROID_NDK_HOME'" >> buildozer.spec
+        echo "android.skip_update = True" >> buildozer.spec
+
+    - name: Build APK with system SDK
+      run: |
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: VirtualAndroX-Ultimate-APK
+        path: bin/*.apk
