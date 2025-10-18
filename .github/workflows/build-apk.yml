@@ -26,8 +26,10 @@ jobs:
         # Install Buildozer
         pip install buildozer
         
-        # Initialize Buildozer project
-        buildozer init <<< "y"
+        # Skip initialization if buildozer.spec exists
+        if [ ! -f "buildozer.spec" ]; then
+          buildozer init <<< "y"
+        fi
         
         # Build the APK
         buildozer -v android debug
