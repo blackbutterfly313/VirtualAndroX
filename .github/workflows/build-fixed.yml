@@ -22,12 +22,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          git zip unzip openjdk-8-jdk \
-          python3-pip autoconf libtool pkg-config \
-          zlib1g-dev libncurses5-dev libncursesw5-dev \
-          libtinfo5 cmake libffi-dev libssl-dev \
-          wget curl
+        sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev wget curl
 
     - name: Install Buildozer and dependencies
       run: |
@@ -47,7 +42,7 @@ jobs:
 
     - name: Create fixed buildozer.spec for pyjnius
       run: |
-        cat > buildozer-fixed.spec << 'SPEC_EOF'
+        cat > buildozer-fixed.spec << 'SPEC'
 [app]
 title = VirtualAndroX
 package.name = virtualandrox
@@ -82,7 +77,7 @@ root = INFO
 
 [app:source.exclude_patterns]
 .git,.github,bin,*.pyc,*.pyo,build
-SPEC_EOF
+SPEC
 
     - name: Build APK with fixed configuration
       run: |
