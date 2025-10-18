@@ -2,11 +2,10 @@ name: Build VirtualAndroX APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
-  release:
-    types: [ published ]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,64 +15,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Build using community Buildozer action
+      uses: ugorji/buildozer-action@v1
       with:
-        python-version: '3.9'
-        
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          git \
-          zip \
-          unzip \
-          openjdk-11-jdk \
-          autoconf \
-          automake \
-          libtool \
-          pkg-config \
-          zlib1g-dev \
-          libncurses5-dev \
-          libncursesw5-dev \
-          libtinfo6 \
-          cmake \
-          libffi-dev \
-          libssl-dev
-          
-    - name: Install Buildozer
-      run: |
-        pip install --upgrade pip
-        pip install buildozer
-        pip install cython==0.29.33
-        
-    - name: Install Android SDK
-      run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        mkdir -p ~/android-sdk/cmdline-tools
-        unzip commandlinetools-linux-8512546_latest.zip -d ~/android-sdk/cmdline-tools
-        mv ~/android-sdk/cmdline-tools/cmdline-tools ~/android-sdk/cmdline-tools/latest
-        
-    - name: Set up Android SDK
-      run: |
-        export ANDROID_SDK_ROOT=~/android-sdk
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
-        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-        echo "PATH=$PATH" >> $GITHUB_ENV
-        
-        # Accept licenses
-        yes | sdkmanager --licenses || true
-        
-        # Install required SDK packages
-        sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-        
-    - name: Build APK with Buildozer
-      run: |
-        export PATH=~/android-sdk/platform-tools:$PATH
-        buildozer android clean
-        buildozer -v android debug
+        work-dir: ./
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -82,30 +27,8 @@ jobs:
         path: bin/*.apk
         retention-days: 30
         
-    - name: Create Release on Tag
+    - name: Create Release
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: bin/*.apk
-        body: |
-          # VirtualAndroX APK Release
-          
-          🤖 **Android 11 Virtualization for Huawei Devices**
-          
-          ## Features:
-          - 🏦 Run myBSN Banking on Android 10 devices
-          - 📱 Google Play Services compatibility
-          - 🔒 Secure sandboxed environment
-          - ⚡ Lightweight (280MB RAM)
-          
-          ## Installation:
-          1. Download the APK
-          2. Enable "Install from unknown sources"
-          3. Install and open VirtualAndroX
-          4. Select "Launch myBSN Banking"
-          
-          ## Supported Devices:
-          - Huawei Nova 4 (Android 10)
-          - Other Huawei devices without GMS
-          
-          **Developer:** @blackbutterfly313
