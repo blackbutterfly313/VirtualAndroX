@@ -7,8 +7,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
     
     steps:
     - name: Checkout code
@@ -18,7 +18,16 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-        cache: 'pip'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          git zip unzip openjdk-11-jdk \
+          python3-pip autoconf libtool pkg-config \
+          zlib1g-dev libncurses5-dev libncursesw5-dev \
+          libtinfo5 cmake libffi-dev libssl-dev \
+          wget curl
 
     - name: Install Buildozer and dependencies
       run: |
@@ -26,12 +35,8 @@ jobs:
         pip install buildozer cython==0.29.19
 
     - name: Build APK with Buildozer
-      uses: arturoguzman/buildozer-action@v1
-      with:
-        buildozer-version: stable
-        work-dir: ./
-        target: android
-        buildozer-args: -v android debug
+      run: |
+        buildozer -v android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
