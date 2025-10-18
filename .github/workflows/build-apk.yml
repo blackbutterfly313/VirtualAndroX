@@ -37,35 +37,38 @@ jobs:
         pip install buildozer
         pip install cython==0.29.33
         
-    - name: Setup Android SDK with pre-accepted licenses
+    - name: Setup Android SDK with accepted licenses
       run: |
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
         
-        # Download and setup Android Command Line Tools
+        # Download Android Command Line Tools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
         mkdir -p android-sdk
         unzip -q commandlinetools-linux-8512546_latest.zip -d android-sdk
         mv android-sdk/cmdline-tools android-sdk/latest
         
-        # Set environment variables
-        echo "ANDROID_SDK_ROOT=$(pwd)/android-sdk" >> $GITHUB_ENV
-        echo "PATH=$(pwd)/android-sdk/latest/bin:$(pwd)/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
+        # Create license acceptance files in Buildozer's directory
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+        echo "d975f751698a77b662f1254ddbeed3901e976f5a" > ~/.buildozer/android/platform/android-sdk/licenses/intel-android-extra-license
         
-        # Create license acceptance file
+        # Also create in our custom SDK directory
         mkdir -p android-sdk/licenses
         echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > android-sdk/licenses/android-sdk-license
         echo "84831b9409646a918e30573bab4c9c91346d8abd" > android-sdk/licenses/android-sdk-preview-license
         echo "d975f751698a77b662f1254ddbeed3901e976f5a" > android-sdk/licenses/intel-android-extra-license
         
-    - name: Install Android packages
+    - name: Pre-install Android packages for Buildozer
       run: |
-        # Install required packages with license pre-accepted
-        ./android-sdk/latest/bin/sdkmanager --sdk_root=./android-sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+        # Pre-install packages that Buildozer needs
+        ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --sdk_root=~/.buildozer/android/platform/android-sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3" || echo "Buildozer SDK setup failed, continuing..."
         
     - name: Build APK
       run: |
-        buildozer -v android debug
+        # Force Buildozer to use pre-accepted licenses
+        yes | buildozer -v android debug || buildozer -v android debug
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
