@@ -1,0 +1,19 @@
+{
+  "versions": {
+    "11": {
+      "name": "Android 11 Lightweight",
+      "system_image": "android11_lightweight.img",
+      "gms_config": "microg_android11.json",
+      "required_ram": 280,
+      "kernel_params": ["androidboot.selinux=permissive"],
+      "compatible_apps": ["com.bsn.mybsn"]
+    },
+    "12": {
+      "name": "Android 12 Lightweight",
+      "system_image": "android12_lightweight.img", 
+      "gms_config": "microg_android12.json",
+      "required_ram": 300,
+      "kernel_params": ["androidboot.selinux=permissive"]
+    }
+  }
+}

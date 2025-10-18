@@ -1,0 +1,8 @@
+{
+  "microg_services": {
+    "core_services": ["gsf", "gcm", "maps", "location"],
+    "play_store": true,
+    "signature_spoofing": true,
+    "cloud_messaging": true
+  }
+}

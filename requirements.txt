@@ -1,0 +1,4 @@
+pyyaml==5.4.1
+requests==2.27.1
+psutil==5.8.0
+colorama==0.4.4
