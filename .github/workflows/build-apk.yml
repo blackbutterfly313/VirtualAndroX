@@ -3,8 +3,6 @@ name: Build VirtualAndroX APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -15,20 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build using community Buildozer action
-      uses: ugorji/buildozer-action@v1
-      with:
-        work-dir: ./
-        
-    - name: Upload APK artifact
+    - name: Build APK with Docker
+      run: |
+        # Use official Kivy Buildozer Docker image
+        docker run --rm \
+          --volume "$(pwd)":/home/user/hostcwd \
+          --workdir /home/user/hostcwd \
+          kivy/buildozer buildozer -v android debug
+          
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: VirtualAndroX-APK
         path: bin/*.apk
         retention-days: 30
-        
-    - name: Create Release
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: bin/*.apk
