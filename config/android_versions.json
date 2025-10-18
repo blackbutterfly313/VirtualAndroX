@@ -6,14 +6,18 @@
       "gms_config": "microg_android11.json",
       "required_ram": 280,
       "kernel_params": ["androidboot.selinux=permissive"],
-      "compatible_apps": ["com.bsn.mybsn"]
+      "compatible_apps": ["com.bsn.mybsn"],
+      "boot_script": "boot.sh",
+      "status": "ready"
     },
     "12": {
       "name": "Android 12 Lightweight",
-      "system_image": "android12_lightweight.img", 
+      "system_image": "android12_lightweight.img",
       "gms_config": "microg_android12.json",
       "required_ram": 300,
-      "kernel_params": ["androidboot.selinux=permissive"]
+      "kernel_params": ["androidboot.selinux=permissive"],
+      "compatible_apps": [],
+      "status": "not_ready"
     }
   }
 }

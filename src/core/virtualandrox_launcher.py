@@ -26,10 +26,12 @@ class VirtualAndroXCore:
     def check_system_requirements(self, android_version):
         """Check if system meets requirements for Android version"""
         versions = self.get_available_versions()
-        if android_version not in versions:
+        version_str = str(android_version)  # Convert to string for JSON key lookup
+        
+        if version_str not in versions:
             return False, f"Android {android_version} not configured"
         
-        version_config = versions[str(android_version)]
+        version_config = versions[version_str]
         required_ram = version_config.get('required_ram', 256)
         
         # Simple RAM check

@@ -16,7 +16,7 @@ class VersionManager:
         versions = config.get('versions', {})
         print("📱 Available Android Versions:")
         for version, details in versions.items():
-            status = "🟢 Ready" if self.check_version_ready(version) else "🟡 Not Downloaded"
+            status = "[READY]" if self.check_version_ready(version) else "[NOT DOWNLOADED]"
             print(f"  Android {version}: {details['name']} - {status}")
     
     def check_version_ready(self, android_version):
