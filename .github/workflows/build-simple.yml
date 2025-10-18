@@ -1,4 +1,4 @@
-name: Build VirtualAndroX - Simplified
+name: Build VirtualAndroX - Simple
 
 on:
   workflow_dispatch:
@@ -20,26 +20,22 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          git zip unzip openjdk-8-jdk \
-          python3-pip autoconf libtool pkg-config \
-          zlib1g-dev libncurses5-dev libncursesw5-dev \
-          libtinfo5 cmake libffi-dev libssl-dev
+        sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
     - name: Install Buildozer
       run: |
         pip install buildozer cython==0.29.19
 
-    - name: Create minimal requirements spec
+    - name: Create minimal buildozer.spec
       run: |
-        cat > buildozer-minimal.spec << 'SPEC'
+        cat > buildozer-minimal.spec << 'SPEC_EOF'
 [app]
 title = VirtualAndroX
 package.name = virtualandrox
 package.domain = org.blackbutterfly313
 source.dir = .
 version = 1.0.0
-requirements = python3  # Minimal requirements to avoid pyjnius issues
+requirements = python3
 orientation = portrait
 
 [buildozer]
@@ -57,7 +53,7 @@ android.accept_sdk_license = True
 
 [loggers]
 root = INFO
-SPEC
+SPEC_EOF
 
     - name: Build with minimal requirements
       run: |
