@@ -1,0 +1,40 @@
+name: ⚡ VirtualAndroX Fast Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fast-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 📦 Install Buildozer
+      run: |
+        pip install buildozer==1.5.0
+        pip install cython==0.29.33
+
+    - name: 🔧 Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: ✅ Accept Licenses Automatically
+      run: |
+        yes | sdkmanager --licenses --sdk_root=$ANDROID_HOME
+        sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+    - name: 🏗️ Build APK
+      run: |
+        buildozer android debug --verbose
+
+    - name: 📤 Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: VirtualAndroX-Fast
+        path: bin/*.apk
