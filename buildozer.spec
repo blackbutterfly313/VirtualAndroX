@@ -1,32 +1,27 @@
 [app]
-
-# App information
 title = VirtualAndroX
 package.name = virtualandrox
 package.domain = org.blackbutterfly313
-
-# Source code
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,sh,txt,md
-
-# Requirements (minimal for now)
-requirements = python3,openssl,requests
-
-# Permissions
-android.permissions = INTERNET,ACCESS_NETWORK_STATE
-
-# Version
 version = 1.0.0
-version.code = 1
-
-# Orientation
+requirements = python3,openssl,requests,psutil,colorama
 orientation = portrait
 
-# Android configuration
-android.api = 30
-android.minapi = 21
-
-# Buildozer configuration
+[buildozer]
 log_level = 2
 
-[buildozer]
+[android]
+api = 30
+minapi = 21
+ndk = 25b
+sdk = 30
+p4a.branch = develop
+android.arch = arm64-v8a
+android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCESS_NETWORK_STATE
+android.meta_data = android.app.usesCleartextTraffic=true
+
+[loggers]
+root = INFO
+
+[app:source.exclude_patterns]
+.git,.github,bin,*.pyc,*.pyo,build
