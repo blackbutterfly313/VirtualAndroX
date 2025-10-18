@@ -7,32 +7,46 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # Use Ubuntu 20.04 for compatibility
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build APK with Python
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'  # Python 3.8 works best with Buildozer
+    
+    - name: Install system dependencies
       run: |
-        # Install Python and dependencies
         sudo apt update
-        sudo apt install -y python3 python3-pip python3-venv python3-distutils
-        
-        # Create virtual environment
-        python3 -m venv venv
-        source venv/bin/activate
-        
-        # Install Buildozer and required dependencies
+        sudo apt install -y \
+          git \
+          zip \
+          unzip \
+          openjdk-8-jdk \
+          python3-pip \
+          autoconf \
+          automake \
+          libtool \
+          pkg-config \
+          zlib1g-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libtinfo5 \
+          cmake \
+          libffi-dev \
+          libssl-dev
+          
+    - name: Install Buildozer and dependencies
+      run: |
+        pip install --upgrade pip
         pip install buildozer
-        pip install setuptools wheel
+        pip install cython==0.29.19
         
-        # Skip initialization if buildozer.spec exists
-        if [ ! -f "buildozer.spec" ]; then
-          buildozer init <<< "y"
-        fi
-        
-        # Build the APK
+    - name: Build APK
+      run: |
         buildozer -v android debug
         
     - name: Upload APK
@@ -41,3 +55,9 @@ jobs:
         name: VirtualAndroX-APK
         path: bin/*.apk
         retention-days: 30
+        
+    - name: Create Release
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/*.apk
