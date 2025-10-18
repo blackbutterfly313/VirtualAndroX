@@ -11,12 +11,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      with:
-        api-level: 30
-        build-tools: 36.1.0
-        ndk: 25b
 
     - name: Pre-accept Android SDK licenses
       run: |
@@ -30,6 +32,7 @@ jobs:
 
     - name: Force accept all Android licenses
       run: |
+        export SKIP_JDK_VERSION_CHECK=1
         yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
         $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-30" "build-tools;36.1.0" "platform-tools" "cmdline-tools;latest"
 
