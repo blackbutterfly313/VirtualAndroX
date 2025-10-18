@@ -31,22 +31,16 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          # Download and setup Android Command Line Tools
           mkdir -p ~/android-sdk
           cd ~/android-sdk
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
           unzip -q commandlinetools-linux-8092744_latest.zip
           mkdir -p cmdline-tools/latest
           mv cmdline-tools/* cmdline-tools/latest/ 2>/dev/null || true
-          
           export ANDROID_HOME=~/android-sdk
           export ANDROID_SDK_ROOT=~/android-sdk
           export PATH=$PATH:~/android-sdk/cmdline-tools/latest/bin:~/android-sdk/platform-tools
-          
-          # Accept licenses
           yes | sdkmanager --licenses
-          
-          # Install platforms and tools
           sdkmanager "platforms;android-30" "platform-tools"
 
       - name: Accept Android SDK Build-Tools license
