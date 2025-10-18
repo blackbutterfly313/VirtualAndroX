@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -35,15 +35,14 @@ jobs:
           python3-dev \
           build-essential
 
-    - name: 🔧 Install Android SDK
+    - name: 🔧 Install Android SDK (FIXED)
       run: |
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O /tmp/cmdline-tools.zip
-        mkdir -p android-sdk
-        unzip -q /tmp/cmdline-tools.zip -d android-sdk
         mkdir -p android-sdk/cmdline-tools/latest
-        mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest/
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/
+        mv /tmp/cmdline-tools/* android-sdk/cmdline-tools/latest/
         rm /tmp/cmdline-tools.zip
 
     - name: ✅ Setup Android Environment
@@ -96,14 +95,6 @@ jobs:
           - ✅ myBSN Banking App Compatibility  
           - ✅ Huawei Nova 4 Optimized
           - ✅ No Google Services Required
-          - ✅ Lightweight (280MB RAM target)
-          
-          **Installation:**
-          1. Download this APK
-          2. Enable "Install from unknown sources"
-          3. Install on Huawei Nova 4
-          4. Launch VirtualAndroX
-          5. Run myBSN banking app
           
           **Build Details:**
           - Workflow: ${{ github.workflow }}
@@ -115,4 +106,3 @@ jobs:
       run: |
         echo "🎉 VIRTUALANDROX APK BUILT SUCCESSFULLY!"
         echo "📱 Download from: https://github.com/${{ github.repository }}/releases"
-        echo "⚡ Artifact: VirtualAndroX-APK"
