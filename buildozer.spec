@@ -20,6 +20,9 @@ android.arch = arm64-v8a
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCESS_NETWORK_STATE
 android.meta_data = android.app.usesCleartextTraffic=true
 
+# License acceptance fix
+android.accept_sdk_license = True
+
 [loggers]
 root = INFO
 
