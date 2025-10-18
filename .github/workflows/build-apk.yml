@@ -13,14 +13,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build APK with Docker
+    - name: Build APK with Python
       run: |
-        # Use official Kivy Buildozer Docker image
-        docker run --rm \
-          --volume "$(pwd)":/home/user/hostcwd \
-          --workdir /home/user/hostcwd \
-          kivy/buildozer buildozer -v android debug
-          
+        # Install Python and pip
+        sudo apt update
+        sudo apt install -y python3 python3-pip python3-venv
+        
+        # Create virtual environment
+        python3 -m venv venv
+        source venv/bin/activate
+        
+        # Install Buildozer
+        pip install buildozer
+        
+        # Initialize Buildozer project
+        buildozer init <<< "y"
+        
+        # Build the APK
+        buildozer -v android debug
+        
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
