@@ -1,0 +1,20 @@
+name: Minimal APK Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: |
+        sudo apt update
+        sudo apt install -y python3-pip
+        pip3 install buildozer
+        buildozer init -y
+        buildozer android debug
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Minimal-APK
+        path: bin/*.apk
