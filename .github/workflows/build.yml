@@ -1,33 +1,52 @@
-name: Build VirtualAndroX
+name: Build VirtualAndroX - Ultimate Fix
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    
+    timeout-minutes: 60
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      
-      - name: Install dependencies
+
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip zlib1g-dev
+          sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip zlib1g-dev wget curl
+
+      - name: Install Buildozer and dependencies
+        run: |
+          python -m pip install --upgrade pip
           pip install buildozer cython==0.29.19
-      
-      - name: Pre-accept ALL Android SDK licenses
+
+      - name: Setup Android SDK with build-tools
+        run: |
+          mkdir -p ~/android-sdk
+          cd ~/android-sdk
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
+          unzip -q commandlinetools-linux-8092744_latest.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/ 2>/dev/null || true
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          export PATH=$PATH:~/android-sdk/cmdline-tools/latest/bin
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-30" "build-tools;36.1.0" "platform-tools"
+
+      - name: Pre-accept Android SDK licenses (backup)
         run: |
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
-          
-          # Create licenses directory and accept ALL licenses
           mkdir -p ~/.android/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-license
           echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
@@ -35,26 +54,50 @@ jobs:
           echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> ~/.android/licenses/android-sdk-license
           echo "601085b94cd77f0b54ff86406957099ebe79c4d6" >> ~/.android/licenses/android-sdk-license
           echo "33f2902b6f732a949b2f43aef4c5f7c9c4a2f574" >> ~/.android/licenses/android-sdk-license
-          
-          # Verify licenses
-          cat ~/.android/licenses/*
-      
-      - name: Force install build-tools with interactive acceptance
+
+      - name: Create optimized buildozer.spec
         run: |
-          # Set up environment for SDK manager
-          export ANDROID_HOME=~/.buildozer/android/platform/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/tools/bin
-          
-          # Force accept licenses interactively
-          yes | sdkmanager --licenses
-          sdkmanager "build-tools;36.1.0" "platforms;android-30" "platform-tools"
-      
-      - name: Build APK
+          cat > buildozer-optimized.spec << 'SPEC'
+          [app]
+          title = VirtualAndroX
+          package.name = virtualandrox
+          package.domain = org.blackbutterfly313
+          source.dir = .
+          version = 1.0.0
+          requirements = python3,openssl,requests,psutil,colorama
+          orientation = portrait
+
+          [buildozer]
+          log_level = 2
+
+          [android]
+          api = 30
+          minapi = 21
+          ndk = 25b
+          sdk = 30
+          p4a.branch = master
+          android.arch = arm64-v8a
+          android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCESS_NETWORK_STATE
+          android.meta_data = android.app.usesCleartextTraffic=true
+          android.accept_sdk_license = True
+          android.sdk_path = ~/android-sdk
+
+          [loggers]
+          root = INFO
+
+          [app:source.exclude_patterns]
+          .git,.github,bin,*.pyc,*.pyo,build
+          SPEC
+
+      - name: Build APK with optimized configuration
         run: |
-          buildozer -v android debug
-      
-      - name: Upload APK
+          export ANDROID_HOME=~/android-sdk
+          export ANDROID_SDK_ROOT=~/android-sdk
+          buildozer -v android debug --profile buildozer-optimized.spec
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: VirtualAndroX-APK
           path: bin/*.apk
+          retention-days: 7
