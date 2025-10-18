@@ -1,0 +1,24 @@
+name: Build APK Manual
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install Buildozer
+      run: pip install buildozer
+    - name: Initialize Buildozer
+      run: buildozer init -y
+    - name: Build APK
+      run: buildozer -v android debug
+    - uses: actions/upload-artifact@v4
+      with:
+        name: VirtualAndroX-Manual
+        path: bin/*.apk
