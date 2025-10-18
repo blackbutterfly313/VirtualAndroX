@@ -1,0 +1,22 @@
+name: Build APK with Kivy Action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build with Buildozer
+      uses: arturoguzman/buildozer-action@v1
+      with:
+        buildozer-version: stable
+        python-version: 3.9
+        target-platform: android
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: VirtualAndroX-Kivy-APK
+        path: bin/*.apk
