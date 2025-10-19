@@ -30,69 +30,34 @@ class VirtualAndroXHome extends StatefulWidget {
 }
 
 class _VirtualAndroXHomeState extends State<VirtualAndroXHome> {
-  String _status = 'Initializing Android 11 Environment...';
-  bool _isReady = false;
-  bool _isTesting = false; // Add flag for test environment
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeSystem();
-  }
-
-  @override
-  void dispose() {
-    // Clean up any pending operations
-    super.dispose();
-  }
-
-  Future<void> _initializeSystem() async {
-    if (_isTesting) {
-      // Skip delays in test environment
-      setState(() {
-        _status = 'System Ready - Huawei Nova 4 Optimized';
-        _isReady = true;
-      });
-      return;
-    }
-
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-    
-    setState(() {
-      _status = 'Loading myBSN Compatibility Layer...';
-    });
-    
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-    
-    setState(() {
-      _status = 'System Ready - Huawei Nova 4 Optimized';
-      _isReady = true;
-    });
-  }
+  String _status = 'System Ready - Huawei Nova 4 Optimized';
+  bool _isReady = true;
 
   void _launchMyBSN() {
-    _showDialog(
-      'Launch myBSN',
-      'myBSN banking app would launch here with full Android 11 virtualization support.',
-    );
-  }
-
-  void _showSettings() {
-    _showDialog(
-      'System Settings',
-      'Virtualization Settings:\\n- Android 11 Environment\\n- 280MB RAM Target\\n- Huawei Kirin 970 Optimized',
-    );
-  }
-
-  void _showDialog(String title, String content) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(content),
+          title: const Text('Launch myBSN'),
+          content: const Text('myBSN banking app would launch here with full Android 11 virtualization support.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSettings() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('System Settings'),
+          content: const Text('Virtualization Settings:\n- Android 11 Environment\n- 280MB RAM Target\n- Huawei Kirin 970 Optimized'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
