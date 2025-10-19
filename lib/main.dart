@@ -32,6 +32,7 @@ class VirtualAndroXHome extends StatefulWidget {
 class _VirtualAndroXHomeState extends State<VirtualAndroXHome> {
   String _status = 'Initializing Android 11 Environment...';
   bool _isReady = false;
+  bool _isTesting = false; // Add flag for test environment
 
   @override
   void initState() {
@@ -39,13 +40,32 @@ class _VirtualAndroXHomeState extends State<VirtualAndroXHome> {
     _initializeSystem();
   }
 
+  @override
+  void dispose() {
+    // Clean up any pending operations
+    super.dispose();
+  }
+
   Future<void> _initializeSystem() async {
+    if (_isTesting) {
+      // Skip delays in test environment
+      setState(() {
+        _status = 'System Ready - Huawei Nova 4 Optimized';
+        _isReady = true;
+      });
+      return;
+    }
+
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    
     setState(() {
       _status = 'Loading myBSN Compatibility Layer...';
     });
     
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    
     setState(() {
       _status = 'System Ready - Huawei Nova 4 Optimized';
       _isReady = true;
@@ -62,7 +82,7 @@ class _VirtualAndroXHomeState extends State<VirtualAndroXHome> {
   void _showSettings() {
     _showDialog(
       'System Settings',
-      'Virtualization Settings:\n- Android 11 Environment\n- 280MB RAM Target\n- Huawei Kirin 970 Optimized',
+      'Virtualization Settings:\\n- Android 11 Environment\\n- 280MB RAM Target\\n- Huawei Kirin 970 Optimized',
     );
   }
 
