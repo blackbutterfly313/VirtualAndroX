@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     
-    <!-- Flutter v2 Embedding -->
     <application
         android:label="VirtualAndroX"
         android:icon="@mipmap/ic_launcher">
@@ -23,7 +22,6 @@
             </intent-filter>
         </activity>
         
-        <!-- Flutter v2 embedding -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
