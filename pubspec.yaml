@@ -20,5 +20,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  assets:
-    - assets/images/
+  # Remove problematic assets until we have actual images
+  # assets:
+  #   - assets/images/
